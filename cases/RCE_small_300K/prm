@@ -1,0 +1,77 @@
+&PARAMETERS
+
+caseid='100x100x32km_1km_10s_fsst_300K',
+
+nrestart = 0,
+
+dt = 10.,
+dx = 1000.,
+dy = 1000.,
+
+ncycle_max = 10
+
+day0=0.0,
+
+nstop    = 864000,
+nprint   = 360,
+nstat    = 360,
+nstatfrq = 60,
+
+latitude0  = 0.,
+longitude0 = 100.,
+
+doseasons = .false.,
+nrad = 12,
+doperpetual=.true.,
+dosolarconstant=.true.,
+solar_constant=551.58,
+zenith_angle=42.05,
+
+OCEAN = .true.,
+tabs_s = 300,
+ocean_type=0,
+
+nxco2 = 0.98,
+dosgs           = .true.,
+dodamping       = .true.,
+doupperbound    = .false.,
+docloud         = .true.,
+doprecip        = .true.,
+dolongwave      = .true.,
+doshortwave     = .true.,
+dosurface       = .true.,
+dolargescale    = .false.,
+doradforcing    = .false.,
+dosfcforcing    = .false.,
+donudging_uv    = .false.,
+donudging_tq    = .false.,
+dofplane        = .false.,
+docoriolis      = .false.,
+doisccp         = .false.,
+
+SFC_FLX_FXD    = .false.,
+SFC_TAU_FXD    = .false.,
+
+doSAMconditionals = .false.
+dosatupdnconditionals = .false.
+
+nsave2D = 360,
+nsave2Dstart    = 648000,
+nsave2Dend      = 999999999,
+save2Dsep = .false.,
+save2Davg = .true.
+
+nsave3D = 360,
+nsave3Dstart    = 648000,
+nsave3Dend      = 999999999,
+save3Dbin      = .true.
+
+nmovie       = 360,
+nmoviestart  = 648000,
+nmovieend    = 999999999,
+
+perturb_type=0
+
+/
+
+

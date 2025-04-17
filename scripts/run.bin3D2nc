@@ -1,0 +1,74 @@
+#!/bin/bash
+
+# notify when the script ends
+#$ -M $fspauldinga@g.ucla.edu
+
+#######################################################
+# The objective of this script is to 
+# (1) convert 3D binary data into .nc files
+# (2) backup the .nc files to Aeolus.
+
+# Path to the binary files
+bpath='/u/scratch/f/fspauldi/SAM/OUT_3D'
+
+# direct stdout and stderr of this script to a text file
+exec &> $bpath/run.bin3D2nc.txt 
+
+# Load modules and compiler library and include files
+source ../dependencies
+
+# specify timesteps
+dayi=140
+dayf=150
+# convert days into timesteps
+ti=$((dayi*86400/10))
+tf=$((dayf*86400/10))
+nstep=360
+
+if ! (($ti % $nstep == 0)) || ! (($tf % $nstep ==0)); then
+    echo "ti=$ti and tf=$tf need to be divisible by nstep."
+    exit 1
+fi
+
+
+# copy the required conversion utility from SAM to SCRATCH
+util='bin3D2nc'
+util0="/u/home/f/fspauldi/SAM6.11.8/UTIL/${util}"
+cp "$util0" "$bpath/$util"
+
+# Loop through different experiments
+for Ts in 300 305 310 315 320; do
+    # Loop through timesteps
+    # https://stackoverflow.com/questions/52609966/for-loop-over-sequence-of-large-numbers-in-bash
+    for ((ts=$ti; ts<=$tf; ts++)); do
+        if ! (($ts % $nstep ==0)); then 
+            # no files exist at this timestep
+            continue
+        fi
+
+        echo "Processing ${Ts}K and timestep ${ts}"
+        # enter the working directory
+        cd "$bpath"
+        echo $(pwd)
+
+        # Convert binary file to .nc format
+        tstr=$(printf "%010d" $ts)
+        bfile="RO-${Ts}K_72x72x64km_2km_2km_10s_fsst_${Ts}K_4_${tstr}.bin3D"
+        echo $bfile
+
+        output=$("${bpath}/$util" "$bfile") # execute the conversion 
+        
+        if [ $? -eq 0 ]; then # check exit status of the last command
+            echo "Conversion successful"
+            # Backup .nc files to Aeolus
+            #ofile="${bpath}/RO-${Ts}K_72x72x64km_2km_2km_10s_fsst_${Ts}K_4_${tstr}.nc"
+            #rsync -auv $ofile fspauldinga@aeolus.atmos.ucla.edu:/data/fspauldinga/SAM6.11.8/RO/OUT_3D/ 
+        else
+            echo "Conversion failed"
+        fi
+    done
+done
+
+echo "done."
+
+

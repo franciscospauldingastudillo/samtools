@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Load modules and compiler library and include files
+source ../dependencies
+
+# Ensure at least one argument is provided
+if [ $# -lt 1 ]; then
+  echo "Usage: $0 <case1> [case2] [case3] ..."
+  exit 1
+fi
+
+# Loop through each provided case argument
+for case in "$@"; do
+  echo "Searching for .bin2D files matching pattern: *${case}_*.bin2D"
+
+  # Process matching .bin2D files
+  found=false
+  for file in $SCRATCH/SAM/OUT_3D/*"${case}"_*.bin2D; do
+    if [ -f "$file" ]; then
+      found=true
+      echo "Processing: $file"
+      # force bin2D2nc to run in /OUT_3D
+      (cd $SCRATCH/SAM/OUT_3D && ~/SAM6.11.8/UTIL/bin2D2nc "$(basename "$file")")
+    fi
+  done
+
+  # If no matching files were found, print a message
+  if [ "$found" = false ]; then
+    echo "No matching .bin2D files found with pattern '${case}'"
+  fi
+done
+
+# notes on this approach
+# () create a subshell where enclosed commands run. Direcotry changes inside parentheses do not affect the parent script.
+# $(basename "$file") extracts only the filename (removes the full path)

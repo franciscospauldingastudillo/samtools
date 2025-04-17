@@ -1,0 +1,108 @@
+#! /bin/bash
+# Runscript to Initialize QSUB session on the UCLA Hoffman2 Cluster
+# https://www.ccn.ucla.edu/wiki/index.php/Hoffman2:Submitting_Jobs#job.q
+
+#$ -l highp,h_rt=90:00:00,h_data=2G
+#$ -l arch=intel-E5*
+#$ -V
+#$ -cwd
+#$ -m abe
+#$ -pe shared 8
+# -o /dev/null
+#$ -o /u/scratch/f/fspauldi/SAM/joblog.$JOB_ID
+#$ -j y 
+
+# Email address to notify if job ends/aborted
+#$ -M $fspauldinga@g.ucla.edu
+
+# Optional: Job Name
+#$ -N RCE_small
+
+# check if the correct number of arguments is provided
+# input $1: surface temperature
+# input #2: submit order (delays submission to prevent CaseName overlap)
+
+# Ensure correct number of arguments
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <surface_temperature> <submit_order>"
+    exit 1
+fi
+
+# Parse inputs
+Ts="$1"
+delay=$((120 * $2))
+
+echo "Surface temperature is set to ${Ts} K"
+echo "Waiting $delay seconds to submit job..."
+sleep "$delay"
+
+# Enter working directory
+MAIN_DIR="/u/home/f/fspauldi/SAM6.11.8"
+if ! cd "$MAIN_DIR"; then
+    echo "Error: Failed to change directory to $MAIN_DIR" >&2
+    exit 1
+fi
+
+# Update CaseName
+case="RCE_small_${Ts}K"
+echo "$case" > "./CaseName"
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to update CaseName file." >&2
+    exit 1
+fi
+sleep 10
+
+# Define the case directory
+CASE_DIR="${MAIN_DIR}/${case}"
+
+# Load dependencies
+. /u/local/Modules/default/init/modules.sh
+module load netcdf/fortran-4.5.3
+module load intel/2022.1.1
+module load python/3.9.6
+
+# Modify the prm file to update caseid and tabs_s
+PRM="prm"
+
+# Backup the original prm file before modifying
+cp "${CASE_DIR}/$PRM" "${CASE_DIR}/${PRM}.backup" || { echo "Error: Failed to create backup."; exit 1; }
+
+# Update caseid
+sed -i "s|caseid='[^']*'|caseid='100x100x32km_1km_10s_fsst_${Ts}K'|" "${CASE_DIR}/${PRM}"
+
+# Update tabs_s, allowing decimals
+sed -i "s|tabs_s = [0-9]*\(\.[0-9]*\)\?|tabs_s = ${Ts}|" "${CASE_DIR}/${PRM}"
+
+echo "Updated $PRM with caseid='100x100x32km_1km_10s_fsst_${Ts}K' and tabs_s=${Ts}"
+
+# Update atmospheric sounding with surface temperature
+if ! python3 "${CASE_DIR}/generate_snd.py" "$Ts"; then
+    echo "Error: Failed to generate atmospheric sounding." >&2
+    exit 1
+fi
+
+# Run simulation and log output
+#fname="SAM_ADV_MPDATA_SGS_TKE_RAD_CAM_MICRO_SAM1MOM"
+fname="SAM_ADV_MPDATA_SGS_TKE_RAD_RRTM_MICRO_SAM1MOM"
+
+# Define the output directory and filename
+outdir="/u/scratch/f/fspauldi/SAM"
+outfile="${outdir}/log_${case}.txt"
+
+# Ensure the directory exists
+if [ ! -d "$outdir" ]; then
+    echo "Creating output directory: $outdir"
+    mkdir -p "$outdir" || { echo "Error: Failed to create $outdir"; exit 1; }
+fi
+
+# Run the simulation
+echo "Running simulation: $fname..."
+if ! mpirun -n 8 ./"$fname" > "$outfile" 2>&1; then
+    echo "Error: Simulation failed. Check log: $outfile" >&2
+    exit 1
+fi
+
+echo "Simulation completed successfully."
+
+# to submit the job to Hoffman, run:
+# qsub ./runscript #processors

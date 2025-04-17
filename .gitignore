@@ -1,0 +1,43 @@
+# Ignore typical Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore temporary files
+*.tmp
+*.log
+*.out
+*.bak
+*~
+
+# Ignore compiled binaries (just in case)
+*.o
+*.so
+*.mod
+
+# Ignore NetCDF, binary, and compressed model output
+*.nc
+*.bin
+*.gz
+*.bz2
+*.zip
+*.tar
+*.tar.gz
+*.h5
+
+# Ignore any checkpoint or restart files (common for models)
+*checkpoint*
+*restart*
+
+# Ignore environment files
+.env/
+.venv/
+*.conda
+
+# Ignore editor/OS artifacts
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+

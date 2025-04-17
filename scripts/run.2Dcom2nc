@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Load modules and compiler library and include files
+source ../dependencies
+
+# Ensure at least one argument is provided
+if [ $# -lt 1 ]; then
+  echo "Usage: $0 <case1> [case2] [case3] ..."
+  exit 1
+fi
+
+# Loop through each provided case argument
+for case in "$@"; do
+  echo "Searching for .2Dcom files matching pattern: *${case}_*.2Dcom"
+
+  # Process matching .2Dcom files
+  found=false
+  for file in $SCRATCH/SAM/OUT_2D/*"${case}"_*.2Dcom; do
+    if [ -f "$file" ]; then
+      found=true
+      echo "Processing: $file"
+      ~/SAM6.11.8/UTIL/2Dcom2nc "$file"
+    fi
+  done
+
+  # If no matching files were found, print a message
+  if [ "$found" = false ]; then
+    echo "No matching .2Dcom files found with pattern '${case}'"
+  fi
+done

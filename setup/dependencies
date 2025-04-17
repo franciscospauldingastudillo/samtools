@@ -1,0 +1,15 @@
+#!/bin/bash
+
+. /u/local/Modules/default/init/modules.sh
+module purge
+module load intel/2020.4; module load netcdf/f-4.8.1
+#module load gcc/8.3.0
+export LIB_NETCDF=$NETCDF_F_LIB                                         
+export INC_NETCDF=$NETCDF_F_INC
+export I_MPI_F77=ifort; export I_MPI_F90=ifort
+export SAM_SCR=$SCRATCH/SAM
+#source ~/.virtualenvs/3.12.9/sam/bin/activate
+sed -i 's/ -extend_source/ -extend-source/g' Makefile
+
+
+# FSA: This is working as of 04/14/2025

@@ -1,0 +1,2 @@
+The objective of this script is to create a RCE_small simulation
+that serves as a spin-up for the RCE_large simulations.
