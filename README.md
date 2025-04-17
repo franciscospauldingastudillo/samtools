@@ -48,7 +48,18 @@ To install and use the SAM tools:
     qsub ./qsub-RCE_small 300 0
     ```
 
-3. **Post-process and plot results:**
+3. **Post-process model output:**
+
+    Convert binary SAM output files to NetCDF format using the provided script:
+
+    ```bash
+    cd scripts
+    ./run.bin3D2nc RCE_small_300K
+    ```
+
+    This will take the binary output from the specified case (e.g., `RCE_small_300K`) and create corresponding `.nc` files, assuming you have already compiled the utilities in the UTIL/ folder within SAM.
+
+4. **Plot diagnostic figures:**
 
     ```bash
     cd scripts
