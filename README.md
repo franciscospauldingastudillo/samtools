@@ -16,6 +16,22 @@ This repository provides tools, examples, and setup scripts to facilitate the us
 - `setup/`  
   Bash scripts to set up a working environment to compile and run SAM.
 
+## Installation 
+
+To install and use the SAM tools:
+
+1. Clone the repository:
+
+    ```bash
+    git clone git@github.com:franciscospauldingastudillo/samtools.git
+    ```
+
+    or (if you prefer HTTPS):
+
+    ```bash
+    git clone https://github.com/franciscospauldingastudillo/samtools.git
+    ```
+
 ## Quick Start
 
 1. **Set up the SAM linux environment:**
