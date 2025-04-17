@@ -1,4 +1,4 @@
-AM Tools
+# samtools
 
 This repository provides tools, examples, and setup scripts to facilitate the use of the System for Atmospheric Modeling (SAM).
 
